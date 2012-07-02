@@ -6,6 +6,8 @@ if not client:ping() then return end
 
 local mp = require'msgpack'
 
+header("Content-Type", "application/rss+xml")
+
 print"<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
 print"<channel>\n"
 print"<atom:link href=\"http://tokyotosho.info/rss.php\" rel=\"self\" type=\"application/rss+xml\" />\n"
