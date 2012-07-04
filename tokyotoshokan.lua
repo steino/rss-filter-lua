@@ -15,7 +15,7 @@ print("<title>Tokyo Toshokan - Filtered</title>\n")
 print("<link>http://tokyotosho.info</link>\n")
 print("<description>Torrent Listing</description>\n")
 
-local matches = client:lrange("rss:matches", 0, -1)
+local matches = client:zrevrange("rss:matches", 0, -1)
 
 for _, v in next, matches do
 	r = mp.unpack(v)

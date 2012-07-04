@@ -28,7 +28,7 @@ local function match(release)
 end
 
 local function duplicate(guid)
-	if client:exists("rss:"..guid) then return true end
+	if client:zrangebyscore("rss:matches", guid, guid) then return true end
 end
 
 local rss = http.get"http://tokyotosho.se/rss.php?filter=1&zwnj=0&entries=150"
@@ -51,8 +51,7 @@ if rss then
 	for n, v in next, arr do
 		local release = match(v.release)
 		if release and not duplicate(v.guid) then
-			client:lpush("rss:matches", mp.pack(v))
-			client:set("rss:"..v.guid, "1")
+			client:zadd("rss:matches", v.guid, mp.pack(v))
 			print(v.release.." has been added.")
 		end
 	end
