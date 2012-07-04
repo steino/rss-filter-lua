@@ -28,7 +28,8 @@ local function match(release)
 end
 
 local function duplicate(guid)
-	if client:zrangebyscore("rss:matches", guid, guid) then return true end
+	local d = client:zrangebyscore("rss:matches", guid, guid)
+	if #d > 0 then return true end
 end
 
 local rss = http.get"http://tokyotosho.se/rss.php?filter=1&zwnj=0&entries=150"
