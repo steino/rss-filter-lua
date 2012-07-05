@@ -21,7 +21,14 @@ local commands = {
 	del = function()
 		if not arg[2] then print"Please insert number of pattern to delete." return end
 		local whitelist = client:lrange("rss:whitelist", 0, -1)
-		client:lrem("rss:whitelist", 0, whitelist[tonumber(arg[2])])
+		local p = whitelist[tonumber(arg[2])]
+		if not p then print("No pattern at index " .. arg[2]) return end
+		local r = client:lrem("rss:whitelist", 0, p)
+		if r == 1 then
+			print("Deleted: " .. p)
+		else
+			print("Unable to delete: " .. p)
+		end
 	end,
 	format = function()
 		if not arg[2] then print"Insert string to be formatted." return end
