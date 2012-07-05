@@ -4,55 +4,69 @@ local r = require'redis'
 local client = r:connect()
 if not client:ping() then return end
 
-local command = arg[1] or ""
+local command = arg[1]
 
-if command:lower() == "list" then
-	local whitelist = client:lrange("rss:whitelist", 0, -1)
-	for i, v in next, whitelist do
-		print(i, v)
-	end
-elseif command:lower() == "add" then
-	client:rpush("rss:whitelist", arg[2])
-	print(arg[2] .. " has been added")
-elseif command:lower() == "del" then
-	local whitelist = client:lrange("rss:whitelist", 0, -1)
-	client:lrem("rss:whitelist", 0, whitelist[tonumber(arg[2])])
-elseif(command:lower() == "format") then
-	local magic = {
-		["%."] = "%%%.",
-		["%-"] = "%%-",
-		["%+"] = "%%+",
-		["%*"] = "%%*",
-		["%?"] = "%%?",
-		["%["] = "%%[",
-		["%]"] = "%%]",
-		["%("] = "%%(",
-		["%)"] = "%%)",
-		["%^"] = "%%^",
-		["%$"] = "%%$",
-		["\226\128\139"] = "",
-	}
-	local btrss = {
-		[" "] = "_",
-		["<ep>"] = "(.-)",
-		["<drop>"] = ".-",
-		["<ext>"] = "%[%%a%%d%]%+%$",
-	}
+local commands = {
+	list = function()
+		local whitelist = client:lrange("rss:whitelist", 0, -1)
+		for i, v in next, whitelist do
+			print(i, v)
+		end
+	end,
+	add = function()
+		if not arg[2] then print"Please insert pattern." return end
+		client:rpush("rss:whitelist", arg[2])
+		print(arg[2] .. " has been added")
+	end,
+	del = function()
+		if not arg[2] then print"Please insert number of pattern to delete." return end
+		local whitelist = client:lrange("rss:whitelist", 0, -1)
+		client:lrem("rss:whitelist", 0, whitelist[tonumber(arg[2])])
+	end,
+	format = function()
+		if not arg[2] then print"Insert string to be formatted." return end
+		local magic = {
+			["%."] = "%%%.",
+			["%-"] = "%%-",
+			["%+"] = "%%+",
+			["%*"] = "%%*",
+			["%?"] = "%%?",
+			["%["] = "%%[",
+			["%]"] = "%%]",
+			["%("] = "%%(",
+			["%)"] = "%%)",
+			["%^"] = "%%^",
+			["%$"] = "%%$",
+			["\226\128\139"] = "",
+		}
+		local btrss = {
+			[" "] = "_",
+			["<ep>"] = "(.-)",
+			["<drop>"] = ".-",
+			["<ext>"] = "%[%%a%%d%]%+%$",
+		}
 
-	local input = arg[2]
-	if(input ~= "") then
-		for k, v in pairs(magic) do
-			input = input:gsub(k, v)
+		local input = arg[2]
+		if(input ~= "") then
+			for k, v in pairs(magic) do
+				input = input:gsub(k, v)
+			end
+	
+			for k, v in pairs(btrss) do
+				input = input:gsub(k, v)
+			end
+		else
+			input = "No input."
 		end
 
-		for k, v in pairs(btrss) do
-			input = input:gsub(k, v)
-		end
-	else
-		input = "No input."
-	end
+		print(input)
+	end,
+}
 
-	print(input)
+if command and commands[command] then
+	commands[command]()
+elseif not command then
+	commands["list"]()
 end
 
 client:quit()
