@@ -16,7 +16,7 @@ local commands = {
 	add = function()
 		if not arg[2] then print"Please insert pattern." return end
 		client:rpush("rss:whitelist", arg[2])
-		print(arg[2] .. " has been added")
+		print("Added: " .. arg[2])
 	end,
 	del = function()
 		if not arg[2] then print"Please insert number of pattern to delete." return end
