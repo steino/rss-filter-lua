@@ -14,6 +14,9 @@ if command:lower() == "list" then
 elseif command:lower() == "add" then
 	client:rpush("rss:whitelist", arg[2])
 	print(arg[2] .. " has been added")
+elseif command:lower() == "del" then
+	local whitelist = client:lrange("rss:whitelist", 0, -1)
+	client:lrem("rss:whitelist", 0, whitelist[tonumber(arg[2])])
 elseif(command:lower() == "format") then
 	local magic = {
 		["%."] = "%%%.",
