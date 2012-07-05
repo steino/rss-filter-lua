@@ -45,10 +45,9 @@ if rss then
 		end
 		release = release:gsub("%s", "_"):lower()
 		guid = guid:match("http://tokyotosho.info/details.php%?id%=(%d+)")
-	
 		table.insert(arr, {release = release, link = link, guid = guid})
 	end
-	
+
 	for n, v in next, arr do
 		local release = match(v.release)
 		if release and not duplicate(v.guid) then
